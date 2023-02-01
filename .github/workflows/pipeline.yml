@@ -35,15 +35,18 @@ jobs:
           start: npm run start-prod
           wait-on: http://localhost:5000
       - name: Deploy app
-        if: ${{ github.event_name == 'push' }}
+        env:
+          SKIP: ${{ contains(join(github.event.commits.*.message), "#skip") }}
+        if: ${{ github.event_name == 'push' && !COMMIT_MESSAGES }}
         run: flyctl deploy --remote-only
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
       - name: Bump version and push tag
-        if: $${{ github.event.name == 'push' }}
-        uses: anothrNick/github-tag-action@1.36.0
         env:
+          SKIP: ${{ contains(join(github.event.commits.*.message), "#skip") }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+        if: ${{ github.event_name == 'push' && !COMMIT_MESSAGES }}
+        uses: anothrNick/github-tag-action@1.36.0
