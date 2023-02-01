@@ -37,7 +37,7 @@ jobs:
       - name: Deploy app
         env:
           SKIP: ${{ contains(join(github.event.commits.*.message), '#skip') }}
-        if: ${{ github.event_name == 'push' && !COMMIT_MESSAGES }}
+        if: ${{ github.event_name == 'push' && !SKIP }}
         run: flyctl deploy --remote-only
   tag_release:
     needs: [simple_deployment_pipeline]
@@ -48,5 +48,5 @@ jobs:
           SKIP: ${{ contains(join(github.event.commits.*.message), '#skip') }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-        if: ${{ github.event_name == 'push' && !COMMIT_MESSAGES }}
+        if: ${{ github.event_name == 'push' && !SKIP }}
         uses: anothrNick/github-tag-action@1.36.0
