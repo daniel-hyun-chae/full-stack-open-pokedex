@@ -37,6 +37,20 @@ jobs:
       - name: Deploy app
         if: ${{ github.event_name == 'push' && !(contains(join(github.event.commits.*.message), '#skip')) }}
         run: flyctl deploy --remote-only
+      - name: Send message to discord
+        if: ${ success() }
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: Deployment succeeded!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Send message to discord
+        if: ${ success() }
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: error
+          details: Deployment pipeline failed!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
@@ -46,7 +60,7 @@ jobs:
           fetch-depth: "0"
       - name: Bump version and push tag
         if: ${{ github.event_name == 'push' && !(contains(join(github.event.commits.*.message), '#skip')) }}
-        uses: anothrNick/github-tag-action@1.36.0
+        uses: anothrNick/github-tag-action@eca2b69f9e2c24be7decccd0f15fdb1ea5906598
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
