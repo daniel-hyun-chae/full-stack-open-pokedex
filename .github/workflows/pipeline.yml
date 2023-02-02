@@ -38,14 +38,14 @@ jobs:
         if: ${{ github.event_name == 'push' && !(contains(join(github.event.commits.*.message), '#skip')) }}
         run: flyctl deploy --remote-only
       - name: Send message to discord
-        if: ${ success() }
+        if: success()
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: info
           details: Deployment succeeded!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Send message to discord
-        if: ${ success() }
+        if: failure()
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: error
